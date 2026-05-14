@@ -34,7 +34,30 @@ Jeeva-Bindu is a rapid blood response system designed to connect donors and seek
 
 ## Screenshots
 
-*(Coming Soon)*
+### Splash Screen
+
+![Splash Screen](screenshots/Splashscreen.png)
+
+### Login Screen
+![Login Screen](screenshots/loginscreen.png)
+
+### OTP Verification
+![OTP Verification](screenshots/otpverification.png)
+
+### Home Screen
+![Home Screen](screenshots/homescreen.png)
+
+### Donor Registration
+![Donor Registration](screenshots/donor_registration.png)
+
+### Blood Request
+![Blood Request](screenshots/blood_request.png)
+
+### Available Donors
+![Available Donors](screenshots/available_donors.png)
+
+### Profile Screen
+![Profile Screen](screenshots/profilescreen.png)
 
 ## License
 
