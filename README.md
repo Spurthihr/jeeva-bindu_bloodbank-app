@@ -35,30 +35,28 @@ Jeeva-Bindu is a rapid blood response system designed to connect donors and seek
 ## Screenshots
 
 ### Splash Screen
-
-![Splash Screen](screenshots/Splashscreen.png)
+<img src="screenshots/Splashscreen.png" width="150" height="300"/>
 
 ### Login Screen
-![Login Screen](screenshots/loginscreen.png)
-
-### OTP Verification
-![OTP Verification](screenshots/otpverification.png)
+<img src="screenshots/loginscreen.png" width="150" height="300"/>
 
 ### Home Screen
-![Home Screen](screenshots/homescreen.png)
+<img src="screenshots/homescreen.png" width="150" height="300"/>
+
+### OTP Verification
+<img src="screenshots/otpverification.png" width="150" height="300"/>
 
 ### Donor Registration
-![Donor Registration](screenshots/donor_registration.png)
+<img src="screenshots/donor_registration.png" width="150" height="300"/>
 
 ### Blood Request
-![Blood Request](screenshots/blood_request.png)
+<img src="screenshots/blood_request.png" width="150" height="300"/>
 
 ### Available Donors
-![Available Donors](screenshots/available_donors.png)
+<img src="screenshots/avaliable_donors.png" width="150" height="300"/>
 
 ### Profile Screen
-![Profile Screen](screenshots/profilescreen.png)
-
+<img src="screenshots/profilescreen.png" width="150" height="300"/>
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
