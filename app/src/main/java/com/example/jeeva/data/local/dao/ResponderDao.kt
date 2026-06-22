@@ -16,5 +16,8 @@ interface ResponderDao {
     fun getResponderCount(requestId: Int): Flow<Int>
 
     @Query("SELECT EXISTS(SELECT 1 FROM request_responders WHERE requestId = :requestId AND donorPhone = :donorPhone)")
-    suspend fun hasResponded(requestId: Int, donorPhone: String): Boolean
+    fun hasResponded(requestId: Int, donorPhone: String): Flow<Boolean>
+    
+    @Query("SELECT EXISTS(SELECT 1 FROM request_responders WHERE requestId = :requestId AND donorPhone = :donorPhone)")
+    suspend fun hasRespondedSync(requestId: Int, donorPhone: String): Boolean
 }

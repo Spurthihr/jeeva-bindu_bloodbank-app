@@ -63,6 +63,7 @@ class DonorViewModel(application: Application) : AndroidViewModel(application) {
                 initialValue = 0
             )
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         filteredDonors = combine(
             snapshotFlow { searchQuery },
             snapshotFlow { selectedBloodGroup },
@@ -139,6 +140,12 @@ class DonorViewModel(application: Application) : AndroidViewModel(application) {
     fun login(phone: String) {
         sessionManager.setLogin(true, phone)
         currentUser = donors.value.find { it.phone == phone }
+    }
+
+    fun logout(onComplete: () -> Unit) {
+        sessionManager.logout()
+        currentUser = null
+        onComplete()
     }
 
     fun isLoggedIn(): Boolean = sessionManager.isLoggedIn()

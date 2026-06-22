@@ -8,8 +8,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -18,21 +20,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.jeeva.data.local.SessionManager
 import com.example.jeeva.data.local.entity.DonorEntity
 import com.example.jeeva.ui.theme.RedPrimary
 import com.example.jeeva.ui.viewmodel.DonorViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(viewModel: DonorViewModel) {
+fun ProfileScreen(
+    viewModel: DonorViewModel,
+    onNavigateToRegister: () -> Unit
+) {
     val user = viewModel.currentUser
     val donationHistory by viewModel.donationHistory.collectAsState()
+    val context = LocalContext.current
+    val sessionManager = remember { SessionManager(context) }
     
     var showEditDialog by remember { mutableStateOf(false) }
     var showHistoryDialog by remember { mutableStateOf(false) }
+    var showCreateAccountDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -44,16 +55,40 @@ fun ProfileScreen(viewModel: DonorViewModel) {
     ) { padding ->
         if (user == null) {
             Box(modifier = Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(24.dp)
+                ) {
                     Icon(
-                        Icons.Default.PersonOff,
+                        Icons.Default.AccountCircle,
                         contentDescription = null,
-                        modifier = Modifier.size(64.dp),
+                        modifier = Modifier.size(80.dp),
                         tint = Color.LightGray
                     )
                     Spacer(modifier = Modifier.height(16.dp))
-                    Text("No donor profile found.", fontWeight = FontWeight.Bold)
-                    Text("Please register as a donor to see your profile.", color = Color.Gray)
+                    Text(
+                        "Create Your Donor Account",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Register as a donor to track your impact, manage your eligibility, and save lives in your community.",
+                        color = Color.Gray,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Spacer(modifier = Modifier.height(32.dp))
+                    Button(
+                        onClick = { showCreateAccountDialog = true },
+                        modifier = Modifier.fillMaxWidth().height(56.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = RedPrimary),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.PersonAdd, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("CREATE ACCOUNT", fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         } else {
@@ -148,10 +183,31 @@ fun ProfileScreen(viewModel: DonorViewModel) {
                     ProfileOptionItem(Icons.Default.Edit, "Edit Profile") { showEditDialog = true }
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
                     ProfileOptionItem(Icons.Default.History, "Donation History") { showHistoryDialog = true }
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                    ProfileOptionItem(
+                        icon = Icons.AutoMirrored.Filled.Logout,
+                        label = "Logout",
+                        textColor = RedPrimary,
+                        onClick = {
+                            viewModel.logout { }
+                        }
+                    )
                 }
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+    }
+
+    if (showCreateAccountDialog) {
+        CreateAccountDialog(
+            phone = sessionManager.getUserPhone() ?: "",
+            onDismiss = { showCreateAccountDialog = false },
+            onSave = { newDonor ->
+                viewModel.registerDonor(newDonor) {
+                    showCreateAccountDialog = false
+                }
+            }
+        )
     }
 
     if (showEditDialog && user != null) {
@@ -195,6 +251,110 @@ fun ProfileScreen(viewModel: DonorViewModel) {
             }
         )
     }
+}
+
+@Composable
+fun CreateAccountDialog(
+    phone: String,
+    onDismiss: () -> Unit,
+    onSave: (DonorEntity) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var age by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
+    var bloodGroup by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    val bloodGroups = listOf("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-")
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Create Donor Account", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text("Phone: $phone", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Full Name") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = age,
+                    onValueChange = { if (it.all { char -> char.isDigit() }) age = it },
+                    label = { Text("Age") },
+                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = location,
+                    onValueChange = { location = it },
+                    label = { Text("Panchayat / Town") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Box {
+                    OutlinedTextField(
+                        value = bloodGroup,
+                        onValueChange = { },
+                        label = { Text("Blood Group") },
+                        modifier = Modifier.fillMaxWidth(),
+                        readOnly = true,
+                        trailingIcon = {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                            }
+                        }
+                    )
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        bloodGroups.forEach { group ->
+                            DropdownMenuItem(
+                                text = { Text(group) },
+                                onClick = {
+                                    bloodGroup = group
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (name.isNotBlank() && age.isNotBlank() && location.isNotBlank() && bloodGroup.isNotBlank()) {
+                        onSave(DonorEntity(
+                            name = name,
+                            age = age.toIntOrNull() ?: 0,
+                            phone = phone,
+                            location = location,
+                            bloodGroup = bloodGroup,
+                            isAvailable = true
+                        ))
+                    }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = RedPrimary),
+                enabled = name.isNotBlank() && age.isNotBlank() && location.isNotBlank() && bloodGroup.isNotBlank()
+            ) {
+                Text("Register")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = Color.Gray)
+            }
+        }
+    )
 }
 
 @Composable

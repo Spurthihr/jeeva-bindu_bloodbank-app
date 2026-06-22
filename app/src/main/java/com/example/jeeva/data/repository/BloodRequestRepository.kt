@@ -30,7 +30,7 @@ class BloodRequestRepository(
 
     suspend fun respondToRequest(requestId: Int, donorPhone: String): Boolean {
         return withContext(Dispatchers.IO) {
-            if (responderDao.hasResponded(requestId, donorPhone)) {
+            if (responderDao.hasRespondedSync(requestId, donorPhone)) {
                 false
             } else {
                 responderDao.insertResponder(

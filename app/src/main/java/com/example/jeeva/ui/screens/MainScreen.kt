@@ -87,10 +87,16 @@ fun MainScreen(
                 DonorsScreen(viewModel = donorViewModel)
             }
             composable("requests_tab") {
-                RequestsScreen(viewModel = requestViewModel)
+                RequestsScreen(
+                    requestViewModel = requestViewModel,
+                    donorViewModel = donorViewModel
+                )
             }
             composable("profile_tab") {
-                ProfileScreen(viewModel = donorViewModel)
+                ProfileScreen(
+                    viewModel = donorViewModel,
+                    onNavigateToRegister = onNavigateToRegister
+                )
             }
         }
     }
